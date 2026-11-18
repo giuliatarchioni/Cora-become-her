@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Become Her</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cora: {
+                            bg: '#F9F6F0',       /* Avorio delicato */
+                            card: '#FFFFFF',     /* Bianco puro */
+                            cream: '#F3ECE1',    /* Crema scuro */
+                            beige: '#E5DAC8',    /* Beige caldo */
+                            taupe: '#A49688',    /* Tortora */
+                            brown: '#4A3E3D',    /* Marrone caldo */
+                            accent: '#D4B5B0',   /* Rosa cipria delicato */
+                            lightpink: '#FAF4F2' /* Sfondo rosa cipria chiarissimo */
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F9F6F0;
+            color: #4A3E3D;
+            -webkit-tap-highlight-color: transparent;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-cora-bg text-cora-brown min-h-screen flex flex-col justify-between selection:bg-cora-accent selection:text-white">
+
+    <!-- CONTAINER PRINCIPALE -->
+    <div id="app-container" class="w-full max-w-md mx-auto flex-1 flex flex-col pb-28 relative overflow-x-hidden">
+        <!-- Contenuto dinamico -->
+    </div>
+
+    <!-- BARRA DI NAVIGAZIONE FISSA IN BASSO -->
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t border-cora-beige px-3 py-2 z-50 flex justify-around items-center shadow-lg">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Home</span>
+        </button>
+        <button onclick="switchTab('routines')" id="nav-routines" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Routine</span>
+        </button>
+        <button onclick="switchTab('habits')" id="nav-habits" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Abitudini</span>
+        </button>
+        <button onclick="switchTab('beauty')" id="nav-beauty" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="heart" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Beauty</span>
+        </button>
+        <button onclick="switchTab('study')" id="nav-study" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Studio</span>
+        </button>
+        <button onclick="switchTab('menu')" id="nav-menu" class="flex flex-col items-center p-1.5 text-cora-taupe transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-1 font-medium">Altro</span>
+        </button>
+    </nav>
+
+    <!-- LOGICA DELL'APPLICAZIONE PERSONALIZZATA -->
+    <script>
+        let state = {
+            onboardingCompleted: false,
+            currentTab: 'dashboard',
+            onboardingStep: 1,
+            userProfile: {
+                goal: 'Become that girl',
+                problem: 'I keep telling myself I\'ll start tomorrow',
+                holdingBack: 'I put things off',
+                lifestyle: 'Student',
+                wakeTime: '07:00 AM',
+                selectedChallenge: 'Autumn Glow Up Challenge',
+                commitment: 'I\'m all in (Daily)'
+            },
+            routines: {
+                morning: [
+                    { id: 1, title: 'Bicchiere d\'acqua e limone', time: '10 min', completed: false },
+                    { id: 2, title: 'Skincare mattutina', time: '15 min', completed: false },
+                    { id: 3, title: 'Colazione consapevole', time: '20 min', completed: false }
+                ],
+                evening: [
+                    { id: 1, title: 'Skincare serale e detersione', time: '15 min', completed: false },
+                    { id: 2, title: 'Digital detox (no schermo)', time: '30 min', completed: false },
+                    { id: 3, title: 'Pianificazione domani', time: '10 min', completed: false }
+                ]
+            },
+            habits: [
+                { id: 1, title: 'Bere 1.5L di acqua', streak: 4, completedToday: false },
+                { id: 2, title: 'Lettura (30 min)', streak: 2, completedToday: false },
+                { id: 3, title: 'Studio concentrato', streak: 5, completedToday: true },
+                { id: 4, title: 'Skincare routine', streak: 7, completedToday: false }
+            ],
+            beautyProducts: [
+                { id: 1, name: 'Siero Viso Idratante', brand: 'The Ordinary', category: 'Skincare', status: 'In uso', rating: 5, notes: 'Su misura per te' }
+            ],
+            journalEntries: [
+                { id: 1, text: 'Inizio il mio percorso con Become Her. Voglio trasformare i miei obiettivi in realtà.', date: '18 Novembre 2026', mood: '✨ Radiant' }
+            ],
+            studySubjects: [
+                { id: 1, name: 'Letteratura / Studio', progress: 65, nextTask: 'Sessione focalizzata' }
+            ],
+            goals: [
+                { id: 1, title: 'Raggiungere i miei traguardi personali', progress: 70, category: 'Crescita', deadline: 'Dicembre 2026' }
+            ],
+            challenges: [
+                { id: 1, title: 'Autumn Glow Up Challenge', progress: 4, total: 7, active: true, desc: 'Percorso personalizzato basato sul tuo stile di vita.' }
+            ]
+        };
+
+        function saveData() {
+            localStorage.setItem('become_her_custom_v3', JSON.stringify(state));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('become_her_custom_v3');
+            if (saved) { try { state = JSON.parse(saved); } catch(e) { console.error(e); } }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            render();
+        });
+
+        function switchTab(tab) {
+            state.currentTab = tab;
+            render();
+            window.scrollTo(0, 0);
+        }
+
+        function render() {
+            const container = document.getElementById('app-container');
+            const nav = document.getElementById('bottom-nav');
+
+            if (!state.onboardingCompleted) {
+                nav.classList.add('hidden');
+                container.innerHTML = renderOnboarding();
+            } else {
+                nav.classList.remove('hidden');
+                updateNavIcons();
+                
+                switch(state.currentTab) {
+                    case 'dashboard': container.innerHTML = renderDashboard(); break;
+                    case 'routines': container.innerHTML = renderRoutines(); break;
+                    case 'habits': container.innerHTML = renderHabits(); break;
+                    case 'beauty': container.innerHTML = renderBeauty(); break;
+                    case 'study': container.innerHTML = renderStudy(); break;
+                    case 'menu': container.innerHTML = renderMenu(); break;
+                    case 'journal': container.innerHTML = renderJournal(); break;
+                    case 'calendar': container.innerHTML = renderCalendar(); break;
+                    case 'goals': container.innerHTML = renderGoals(); break;
+                    case 'challenges': container.innerHTML = renderChallenges(); break;
+                    default: container.innerHTML = renderDashboard();
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function updateNavIcons() {
+            ['dashboard', 'routines', 'habits', 'beauty', 'study', 'menu'].forEach(tab => {
+                const btn = document.getElementById(`nav-${tab}`);
+                if (btn) {
+                    if (state.currentTab === tab) {
+                        btn.className = "flex flex-col items-center p-1.5 text-cora-brown font-semibold transition-colors scale-105";
+                    } else {
+                        btn.className = "flex flex-col items-center p-1.5 text-cora-taupe hover:text-cora-brown transition-colors";
+                    }
+                }
+            });
+        }
+
+        // ==================== ONBOARDING MULTI-STEP ====================
+        function renderOnboarding() {
+            return `
+                <div class="min-h-screen flex flex-col justify-between p-6 fade-in">
+                    <div class="space-y-5 mt-2">
+                        <div class="flex items-center justify-between">
+                            ${state.onboardingStep > 1 ? `<button onclick="state.onboardingStep--; render();" class="text-cora-brown"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>` : `<div></div>`}
+                            <span class="text-[10px] uppercase tracking-widest text-cora-taupe font-semibold">Step ${state.onboardingStep} di 10</span>
+                            <div class="w-6"></div>
+                        </div>
+
+                        <div class="w-full bg-cora-cream h-1 rounded-full overflow-hidden">
+                            <div class="bg-cora-brown h-full transition-all duration-300" style="width: ${(state.onboardingStep / 10) * 100}%"></div>
+                        </div>
+
+                        <div class="space-y-4 pt-2">
+                            ${state.onboardingStep === 1 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">What brings you here?</h1>
+                                    <p class="text-xs text-cora-taupe">Pick the goals that matter most</p>
+                                </div>
+                                <div class="space-y-2.5">
+                                    ${['Be healthier', 'Become that girl', 'Feel confident', 'Glow up', 'Organise my life', 'Build better habits'].map(opt => `
+                                        <div onclick="selectOption('goal', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.goal === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.goal === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 2 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">What problems sound most relatable?</h1>
+                                    <p class="text-xs text-cora-taupe">Be honest — pick what feels true</p>
+                                </div>
+                                <div class="space-y-2.5">
+                                    ${['I know I\'m capable of so much more.', 'I don\'t feel like the person I could become.', 'I keep telling myself I\'ll start tomorrow.', 'I feel stuck in the same version of myself.', 'I never feel like I have my life together.'].map(opt => `
+                                        <div onclick="selectOption('problem', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.problem === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.problem === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 3 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">What could be holding you back?</h1>
+                                    <p class="text-xs text-cora-taupe">Pick everything that gets in your way</p>
+                                </div>
+                                <div class="space-y-2.5">
+                                    ${['I put things off', 'I lose motivation fast', 'I get distracted easily', 'I burn out and give up', 'I don\'t know where to start'].map(opt => `
+                                        <div onclick="selectOption('holdingBack', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.holdingBack === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.holdingBack === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 4 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">What lifestyle describes you best?</h1>
+                                    <p class="text-xs text-cora-taupe">Pick the one that fits you most</p>
+                                </div>
+                                <div class="space-y-2.5">
+                                    ${['Career driven', 'Student', 'Athletic & Active', 'Busy & on the go', 'Calm & balanced', 'Passionate & Creative'].map(opt => `
+                                        <div onclick="selectOption('lifestyle', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.lifestyle === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.lifestyle === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 5 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">What time do you wake up?</h1>
+                                    <p class="text-xs text-cora-taupe">We'll schedule your morning routine around it.</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-3xl border border-cora-beige text-center space-y-3 shadow-xs">
+                                    <input type="time" id="onb-wake-time" value="07:00" class="text-3xl font-serif text-cora-brown bg-cora-lightpink p-3 rounded-2xl border border-cora-beige text-center focus:outline-none w-full">
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 6 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">Which challenge inspires you?</h1>
+                                    <p class="text-xs text-cora-taupe">Pick one to work towards</p>
+                                </div>
+                                <div class="space-y-3">
+                                    ${['Autumn Glow Up Challenge', 'The Sleep Reset', '14-Day Gut Reset', '21-Day Dopamine Detox', 'The Discipline Era'].map(opt => `
+                                        <div onclick="selectOption('selectedChallenge', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.selectedChallenge === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.selectedChallenge === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 7 ? `
+                                <div class="text-center space-y-1">
+                                    <h1 class="text-3xl font-serif text-cora-brown">How committed are you?</h1>
+                                    <p class="text-xs text-cora-taupe">Becoming her takes showing up</p>
+                                </div>
+                                <div class="space-y-2.5">
+                                    ${['I\'m all in (Daily)', 'Very committed (5-6 days a week)', 'Committed (3-4 days a week)', 'Easing in (2-3 days a week)'].map(opt => `
+                                        <div onclick="selectOption('commitment', '${opt}')" class="p-4 rounded-2xl border cursor-pointer flex justify-between items-center transition-all ${state.userProfile.commitment === opt ? 'bg-cora-cream border-cora-brown shadow-xs' : 'bg-white border-cora-beige'}">
+                                            <span class="text-xs font-semibold text-cora-brown">${opt}</span>
+                                            <div class="w-4 h-4 rounded-full border ${state.userProfile.commitment === opt ? 'bg-cora-brown border-cora-brown' : 'border-cora-beige'}"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 8 ? `
+                                <div class="text-center space-y-2">
+                                    <h1 class="text-3xl font-serif text-cora-brown">Analysing your responses</h1>
+                                    <p class="text-xs text-cora-taupe">Hang tight — building your personalised ecosystem.</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-3xl border border-cora-beige space-y-3 text-xs">
+                                    <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Tailoring routine to your lifestyle (${state.userProfile.lifestyle})</div>
+                                    <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Addressing obstacle: ${state.userProfile.holdingBack}</div>
+                                    <div class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Calibrating Pomodoro & Focus blocks</div>
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 9 ? `
+                                <div class="text-center space-y-2">
+                                    <h1 class="text-3xl font-serif text-cora-brown">Tracking habits for your goals</h1>
+                                    <p class="text-xs text-cora-taupe">System tuned for: "${state.userProfile.goal}"</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-3xl border border-cora-beige space-y-3 text-xs">
+                                    <div class="flex items-center gap-2 font-medium text-cora-brown">🔥 Streak building personalizzato</div>
+                                    <div class="flex items-center gap-2 font-medium text-cora-brown">📈 Monitoraggio dei progressi unici</div>
+                                </div>
+                            ` : ''}
+
+                            ${state.onboardingStep === 10 ? `
+                                <div class="text-center space-y-2">
+                                    <h1 class="text-3xl font-serif text-cora-brown">Il tuo spazio è pronto ✨</h1>
+                                    <p class="text-xs text-cora-taupe">Become Her è ora configurata esattamente sulla tua persona e sui tuoi ritmi.</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button onclick="nextOnboardingStep()" class="w-full py-4 bg-cora-brown text-white rounded-2xl font-medium shadow-md">
+                            ${state.onboardingStep === 10 ? 'Entra nella tua App ✨' : 'Continue'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectOption(key, val) {
+            state.userProfile[key] = val;
+            saveData(); render();
+        }
+
+        function nextOnboardingStep() {
+            if (state.onboardingStep === 5) {
+                const timeInput = document.getElementById('onb-wake-time');
+                if (timeInput) state.userProfile.wakeTime = timeInput.value;
+            }
+            if (state.onboardingStep < 10) {
+                state.onboardingStep++;
+            } else {
+                state.onboardingCompleted = true;
+            }
+            saveData(); render();
+        }
+
+        // ==================== DASHBOARD PERSONALE (PERSONALIZZATA) ====================
+        function renderDashboard() {
+            const today = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">${today}</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Buongiorno ✨</h1>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-cora-beige flex items-center justify-center text-cora-brown font-serif font-bold shadow-inner">BH</div>
+                    </div>
+
+                    <!-- Box dinamico basato sul questionario -->
+                    <div class="bg-gradient-to-r from-cora-cream to-cora-lightpink p-4 rounded-3xl border border-cora-beige space-y-1.5 shadow-xs">
+                        <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-cora-taupe">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Profilo: ${state.userProfile.lifestyle} • Obiettivo: ${state.userProfile.goal}
+                        </div>
+                        <p class="font-serif text-base text-cora-brown">"Visto che tendi a: <span class='italic font-sans text-xs'>${state.userProfile.holdingBack}</span>, oggi procediamo un passo alla volta."</p>
+                        <p class="text-[11px] text-cora-taupe">Sveglia ${state.userProfile.wakeTime} • Sfida: ${state.userProfile.selectedChallenge}</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-serif text-base text-cora-brown">Routine Mattutina</h3>
+                            <button onclick="switchTab('routines')" class="text-xs text-cora-taupe hover:text-cora-brown">Gestisci</button>
+                        </div>
+                        <div class="space-y-2">
+                            ${state.routines.morning.map(item => `
+                                <div onclick="toggleRoutine('morning', ${item.id})" class="bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between cursor-pointer shadow-xs">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-full border-2 ${item.completed ? 'bg-cora-brown border-cora-brown flex items-center justify-center text-white' : 'border-cora-beige'}">
+                                            ${item.completed ? '<i data-lucide="check" class="w-3 h-3"></i>' : ''}
+                                        </div>
+                                        <span class="text-xs font-medium ${item.completed ? 'line-through text-cora-taupe' : 'text-cora-brown'}">${item.title}</span>
+                                    </div>
+                                    <span class="text-[10px] text-cora-taupe bg-cora-bg px-2 py-0.5 rounded-full">${item.time}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-serif text-base text-cora-brown">Abitudini per il tuo percorso</h3>
+                            <button onclick="switchTab('habits')" class="text-xs text-cora-taupe hover:text-cora-brown">Tutte</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            ${state.habits.slice(0, 4).map(habit => `
+                                <div onclick="toggleHabit(${habit.id})" class="bg-white p-3 rounded-2xl border border-cora-beige flex flex-col justify-between cursor-pointer shadow-xs">
+                                    <div class="flex justify-between items-start mb-1.5">
+                                        <span class="text-[10px] font-medium text-cora-taupe">${habit.streak} giorni 🔥</span>
+                                        <div class="w-4 h-4 rounded-full border ${habit.completedToday ? 'bg-cora-brown border-cora-brown flex items-center justify-center text-white' : 'border-cora-beige'}">
+                                            ${habit.completedToday ? '<i data-lucide="check" class="w-2.5 h-2.5"></i>' : ''}
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-cora-brown">${habit.title}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleRoutine(type, id) {
+            const item = state.routines[type].find(i => i.id === id);
+            if (item) { item.completed = !item.completed; saveData(); render(); }
+        }
+
+        function toggleHabit(id) {
+            const habit = state.habits.find(h => h.id === id);
+            if (habit) {
+                habit.completedToday = !habit.completedToday;
+                if (habit.completedToday) habit.streak += 1;
+                else habit.streak = Math.max(0, habit.streak - 1);
+                saveData(); render();
+            }
+        }
+
+        // ==================== ROUTINE & MODALITÀ SUGGEST PERSONALIZZATA ====================
+        function renderRoutines() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Flessibilità & Ascolto</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Routine & Suggest</h1>
+                        </div>
+                        <button onclick="openCustomSuggest()" class="bg-cora-cream text-cora-brown text-xs px-3 py-2 rounded-xl font-medium border border-cora-beige flex items-center gap-1 shadow-xs">
+                            <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Suggest
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl border border-cora-beige space-y-3 shadow-xs">
+                        <div class="flex justify-between items-center border-b border-cora-cream pb-2">
+                            <h3 class="font-serif text-base text-cora-brown flex items-center gap-2"><i data-lucide="sun" class="w-4 h-4 text-amber-600"></i> Mattutina (${state.userProfile.wakeTime})</h3>
+                            <button onclick="addRoutineItem('morning')" class="text-[11px] bg-cora-lightpink px-2 py-1 rounded-lg text-cora-brown">+ Aggiungi</button>
+                        </div>
+                        <div class="space-y-2">
+                            ${state.routines.morning.map(item => `
+                                <div class="flex items-center justify-between p-2.5 bg-cora-bg rounded-xl border border-cora-beige/50">
+                                    <div class="flex items-center gap-2.5">
+                                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleRoutine('morning', ${item.id})" class="accent-[#4A3E3D] w-4 h-4">
+                                        <span class="text-xs ${item.completed ? 'line-through text-cora-taupe' : 'text-cora-brown'}">${item.title}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-cora-taupe">${item.time}</span>
+                                        <button onclick="deleteRoutineItem('morning', ${item.id})" class="text-cora-taupe hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl border border-cora-beige space-y-3 shadow-xs">
+                        <div class="flex justify-between items-center border-b border-cora-cream pb-2">
+                            <h3 class="font-serif text-base text-cora-brown flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i> Serale</h3>
+                            <button onclick="addRoutineItem('evening')" class="text-[11px] bg-cora-lightpink px-2 py-1 rounded-lg text-cora-brown">+ Aggiungi</button>
+                        </div>
+                        <div class="space-y-2">
+                            ${state.routines.evening.map(item => `
+                                <div class="flex items-center justify-between p-2.5 bg-cora-bg rounded-xl border border-cora-beige/50">
+                                    <div class="flex items-center gap-2.5">
+                                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleRoutine('evening', ${item.id})" class="accent-[#4A3E3D] w-4 h-4">
+                                        <span class="text-xs ${item.completed ? 'line-through text-cora-taupe' : 'text-cora-brown'}">${item.title}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-cora-taupe">${item.time}</span>
+                                        <button onclick="deleteRoutineItem('evening', ${item.id})" class="text-cora-taupe hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addRoutineItem(type) {
+            const title = prompt("Nome attività:");
+            if (title) { state.routines[type].push({ id: Date.now(), title, time: '15 min', completed: false }); saveData(); render(); }
+        }
+
+        function deleteRoutineItem(type, id) {
+            state.routines[type] = state.routines[type].filter(i => i.id !== id);
+            saveData(); render();
+        }
+
+        function openCustomSuggest() {
+            alert(`💡 Suggerimento basato sul tuo profilo:\nVisto che hai indicato di sentirti spesso bloccata perché "${state.userProfile.holdingBack}" e il tuo stile di vita è "${state.userProfile.lifestyle}", l'app ti consiglia di suddividere le attività in blocchi di 15 minuti senza pretendere la perfezione. La scelta è sempre tua! ✨`);
+        }
+
+        // ==================== HABIT TRACKER ====================
+        function renderHabits() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Costanza</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Habit Tracker</h1>
+                        </div>
+                        <button onclick="addHabit()" class="bg-cora-brown text-white text-xs px-3 py-2 rounded-xl font-medium">+ Nuova</button>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        ${state.habits.map(habit => `
+                            <div class="bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between shadow-xs">
+                                <div class="flex items-center gap-3">
+                                    <button onclick="toggleHabit(${habit.id})" class="w-6 h-6 rounded-full border-2 ${habit.completedToday ? 'bg-cora-brown border-cora-brown flex items-center justify-center text-white' : 'border-cora-beige'}">
+                                        ${habit.completedToday ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
+                                    </button>
+                                    <div>
+                                        <h4 class="text-xs font-semibold text-cora-brown">${habit.title}</h4>
+                                        <span class="text-[10px] text-cora-taupe">Serie: ${habit.streak} giorni 🔥</span>
+                                    </div>
+                                </div>
+                                <button onclick="deleteHabit(${habit.id})" class="text-cora-taupe hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addHabit() {
+            const title = prompt("Nome abitudine:");
+            if (title) { state.habits.push({ id: Date.now(), title, streak: 0, completedToday: false }); saveData(); render(); }
+        }
+
+        function deleteHabit(id) {
+            state.habits = state.habits.filter(h => h.id !== id); saveData(); render();
+        }
+
+        // ==================== BEAUTY PLANNER ====================
+        function renderBeauty() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Self-Care</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Beauty Planner</h1>
+                        </div>
+                        <button onclick="addProduct()" class="bg-cora-brown text-white text-xs px-3 py-2 rounded-xl font-medium">+ Prodotto</button>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <h3 class="font-serif text-base text-cora-brown">Archivio Prodotti</h3>
+                        ${state.beautyProducts.map(prod => `
+                            <div class="bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between shadow-xs">
+                                <div>
+                                    <span class="text-[9px] uppercase font-semibold text-cora-taupe">${prod.category} • ${prod.brand}</span>
+                                    <h4 class="text-xs font-semibold text-cora-brown">${prod.name}</h4>
+                                    <span class="text-[10px] text-cora-taupe">Stato: ${prod.status}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] bg-cora-lightpink px-2 py-0.5 rounded-full text-cora-brown">★ ${prod.rating}</span>
+                                    <button onclick="deleteProduct(${prod.id})" class="text-cora-taupe hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addProduct() {
+            const name = prompt("Nome prodotto:");
+            if (name) {
+                const brand = prompt("Marca:", "Brand");
+                state.beautyProducts.push({ id: Date.now(), name, brand: brand || 'Brand', category: 'Skincare', status: 'In uso', rating: 5, notes: '' });
+                saveData(); render();
+            }
+        }
+
+        function deleteProduct(id) {
+            state.beautyProducts = state.beautyProducts.filter(p => p.id !== id); saveData(); render();
+        }
+
+        // ==================== STUDIO & POMODORO PERSONALIZZATO ====================
+        function renderStudy() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Accademico (${state.userProfile.lifestyle})</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Studio & Timer</h1>
+                        </div>
+                        <button onclick="addSubject()" class="bg-cora-brown text-white text-xs px-3 py-2 rounded-xl font-medium">+ Materia</button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-3xl border border-cora-beige text-center space-y-3 shadow-xs">
+                        <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Timer Pomodoro (Ottimizzato per te)</span>
+                        <div id="pomodoro-display" class="font-serif text-4xl text-cora-brown font-bold tracking-tight">25:00</div>
+                        <div class="flex justify-center gap-2.5">
+                            <button onclick="togglePomodoro()" id="pomodoro-btn" class="px-5 py-2 bg-cora-brown text-white text-xs font-medium rounded-xl shadow-xs">Avvia</button>
+                            <button onclick="resetPomodoro()" class="px-3.5 py-2 bg-cora-bg text-cora-brown text-xs font-medium rounded-xl border border-cora-beige">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <h3 class="font-serif text-base text-cora-brown">Le tue Materie / Impegni</h3>
+                        ${state.studySubjects.map(sub => `
+                            <div class="bg-white p-3.5 rounded-2xl border border-cora-beige space-y-1.5 shadow-xs">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="text-xs font-semibold text-cora-brown">${sub.name}</h4>
+                                    <span class="text-[10px] text-cora-taupe">${sub.progress}%</span>
+                                </div>
+                                <div class="w-full bg-cora-bg h-1.5 rounded-full overflow-hidden border border-cora-beige/40">
+                                    <div class="bg-cora-brown h-full rounded-full" style="width: ${sub.progress}%"></div>
+                                </div>
+                                <p class="text-[10px] text-cora-taupe">Prossimo step: ${sub.nextTask}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        let pomodoroInterval = null;
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+
+        function togglePomodoro() {
+            const btn = document.getElementById('pomodoro-btn');
+            if (!isRunning) {
+                isRunning = true; btn.innerText = 'Pausa';
+                pomodoroInterval = setInterval(() => {
+                    if (timeLeft > 0) { timeLeft--; updatePomodoroDisplay(); }
+                    else {
+                        clearInterval(pomodoroInterval); isRunning = false;
+                        alert("Sessione Pomodoro completata! Ottimo lavoro per il tuo obiettivo ✨");
+                        timeLeft = 25 * 60; updatePomodoroDisplay(); btn.innerText = 'Avvia';
+                    }
+                }, 1000);
+            } else {
+                isRunning = false; clearInterval(pomodoroInterval); btn.innerText = 'Riprendi';
+            }
+        }
+
+        function resetPomodoro() {
+            clearInterval(pomodoroInterval); isRunning = false; timeLeft = 25 * 60; updatePomodoroDisplay();
+            const btn = document.getElementById('pomodoro-btn'); if (btn) btn.innerText = 'Avvia';
+        }
+
+        function updatePomodoroDisplay() {
+            const el = document.getElementById('pomodoro-display');
+            if (el) {
+                const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60;
+                el.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        function addSubject() {
+            const name = prompt("Nome materia o attività di studio:");
+            if (name) { state.studySubjects.push({ id: Date.now(), name, progress: 0, nextTask: 'Prima sessione' }); saveData(); render(); }
+        }
+
+        // ==================== MENU & ALTRE SEZIONI ====================
+        function renderMenu() {
+            return `
+                <div class="p-5 space-y-4 fade-in">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Menu</span>
+                        <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Altre Sezioni & Dati</h1>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="switchTab('journal')" class="w-full bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between text-cora-brown text-xs font-medium shadow-xs">
+                            <span class="flex items-center gap-2.5"><i data-lucide="book" class="w-4 h-4"></i> Journal & Mood Tracker</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-cora-taupe"></i>
+                        </button>
+                        <button onclick="switchTab('calendar')" class="w-full bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between text-cora-brown text-xs font-medium shadow-xs">
+                            <span class="flex items-center gap-2.5"><i data-lucide="calendar" class="w-4 h-4"></i> Calendario Sincronizzato</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-cora-taupe"></i>
+                        </button>
+                        <button onclick="switchTab('goals')" class="w-full bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between text-cora-brown text-xs font-medium shadow-xs">
+                            <span class="flex items-center gap-2.5"><i data-lucide="target" class="w-4 h-4"></i> Obiettivi & Milestone</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-cora-taupe"></i>
+                        </button>
+                        <button onclick="switchTab('challenges')" class="w-full bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between text-cora-brown text-xs font-medium shadow-xs">
+                            <span class="flex items-center gap-2.5"><i data-lucide="award" class="w-4 h-4"></i> Glow-Up Challenges (${state.userProfile.selectedChallenge})</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-cora-taupe"></i>
+                        </button>
+                        <button onclick="exportBackup()" class="w-full bg-white p-3.5 rounded-2xl border border-cora-beige flex items-center justify-between text-cora-brown text-xs font-medium shadow-xs">
+                            <span class="flex items-center gap-2.5"><i data-lucide="download" class="w-4 h-4"></i> Esporta Backup Dati</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-cora-taupe"></i>
+                        </button>
+                        <button onclick="resetApp()" class="w-full bg-red-50 p-3.5 rounded-2xl border border-red-200 flex items-center justify-between text-red-600 text-xs font-medium shadow-xs mt-4">
+                            <span class="flex items-center gap-2.5"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Ripeti Questionario Onboarding</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-red-400"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderJournal() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Riflessioni</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Journal & Mood</h1>
+                        </div>
+                        <button onclick="addJournalEntry()" class="bg-cora-brown text-white text-xs px-3 py-2 rounded-xl font-medium">+ Nota</button>
+                    </div>
+                    <div class="space-y-2.5">
+                        ${state.journalEntries.map(e => `
+                            <div class="bg-white p-3.5 rounded-2xl border border-cora-beige space-y-1 shadow-xs">
+                                <div class="flex justify-between text-[10px] text-cora-taupe">
+                                    <span>${e.date}</span><span>${e.mood || ''}</span>
+                                </div>
+                                <p class="text-xs text-cora-brown">${e.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addJournalEntry() {
+            const text = prompt("Come ti senti oggi rispetto al tuo obiettivo di diventare la migliore versione di te stessa?");
+            if (text) {
+                const date = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+                state.journalEntries.unshift({ id: Date.now(), text, date, mood: '✨ Radiant' });
+                saveData(); render();
+            }
+        }
+
+        function renderCalendar() {
+            const days = Array.from({length: 30}, (_, i) => i + 1);
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Panoramica</span>
+                        <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Calendario Sincronizzato</h1>
+                    </div>
+                    <div class="bg-white p-4 rounded-3xl border border-cora-beige space-y-3 shadow-xs">
+                        <div class="flex justify-between items-center font-serif text-base text-cora-brown border-b border-cora-cream pb-2">
+                            <span>Novembre 2026</span><span class="text-[11px] font-sans text-cora-taupe">Collegato al tuo profilo</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-cora-taupe">
+                            <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 text-center text-xs">
+                            ${days.map(d => `<div class="aspect-square flex items-center justify-center rounded-xl ${d === 18 ? 'bg-cora-brown text-white font-bold shadow-xs' : 'bg-cora-bg text-cora-brown border border-cora-beige/40'}">${d}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGoals() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Traguardi</span>
+                            <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Obiettivi & Milestone</h1>
+                        </div>
+                        <button onclick="addGoal()" class="bg-cora-brown text-white text-xs px-3 py-2 rounded-xl font-medium">+ Obiettivo</button>
+                    </div>
+                    <div class="space-y-2.5">
+                        ${state.goals.map(g => `
+                            <div class="bg-white p-3.5 rounded-2xl border border-cora-beige space-y-1.5 shadow-xs">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="text-xs font-semibold text-cora-brown">${g.title}</h4>
+                                    <span class="text-[10px] text-cora-taupe">${g.progress}%</span>
+                                </div>
+                                <div class="w-full bg-cora-bg h-1.5 rounded-full overflow-hidden border border-cora-beige/40">
+                                    <div class="bg-cora-brown h-full rounded-full" style="width: ${g.progress}%"></div>
+                                </div>
+                                <p class="text-[10px] text-cora-taupe">Scadenza: ${g.deadline}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addGoal() {
+            const title = prompt("Titolo obiettivo:");
+            if (title) { state.goals.push({ id: Date.now(), title, progress: 0, category: 'Personale', deadline: 'Prossimamente' }); saveData(); render(); }
+        }
+
+        function renderChallenges() {
+            return `
+                <div class="p-5 space-y-5 fade-in">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider text-cora-taupe font-semibold">Percorso Scelto</span>
+                        <h1 class="text-2xl font-serif text-cora-brown mt-0.5">Glow-Up Challenges</h1>
+                    </div>
+                    <div class="space-y-2.5">
+                        <div class="bg-white p-4 rounded-2xl border border-cora-beige space-y-2 shadow-xs">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-semibold text-cora-brown">${state.userProfile.selectedChallenge}</h4>
+                                <span class="text-[10px] text-cora-taupe">Attiva</span>
+                            </div>
+                            <p class="text-[11px] text-cora-taupe">Questa è la sfida che hai selezionato durante il questionario in base alle tue priorità.</p>
+                            <div class="w-full bg-cora-bg h-1.5 rounded-full overflow-hidden border border-cora-beige/40">
+                                <div class="bg-cora-brown h-full rounded-full" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "become_her_backup.json");
+            document.body.appendChild(dlAnchor); dlAnchor.click(); dlAnchor.remove();
+        }
+
+        function resetApp() {
+            if (confirm("Vuoi ripetere il questionario di onboarding?")) {
+                localStorage.removeItem('become_her_custom_v3');
+                state.onboardingCompleted = false;
+                state.onboardingStep = 1;
+                render();
+            }
+        }
+    </script>
+</body>
+</html>
