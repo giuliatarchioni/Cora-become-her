@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>CORA // BECOME HER</title>
+  
+  <!-- Meta tag per apertura a schermo intero nativa su iOS/iPadOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CORA" />
+  <meta name="theme-color" content="#070709" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23070709'/><rect x='8' y='8' width='164' height='164' rx='34' fill='none' stroke='%23d4af37' stroke-width='2'/><text x='90' y='112' font-family='Georgia, serif' font-size='78' fill='%23d4af37' text-anchor='middle'>C</text></svg>" />
+
+  <!-- Tailwind CSS & Font -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#070709',
+            velvet: '#111116',
+            card: '#16161d',
+            gold: {
+              light: '#f3e5ab',
+              DEFAULT: '#d4af37',
+              dark: '#9e7f1e'
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: #070709;
+      color: #f5f5f7;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      overflow-x: hidden;
+    }
+    .glass-card {
+      background: linear-gradient(145deg, rgba(24, 24, 32, 0.85), rgba(14, 14, 19, 0.95));
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .glass-card-active {
+      border-color: rgba(212, 175, 55, 0.65);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.12);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #b59224 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #e5c558 0%, #d4af37 50%, #b08d22 100%);
+      color: #070709;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+    .gold-btn:active { transform: scale(0.97); }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #070709; }
+    ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 99px; }
+    @keyframes pulseBreath {
+      0%, 100% { transform: scale(1); opacity: 0.75; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+    .breath-circle { animation: pulseBreath 8s infinite ease-in-out; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ==================== ONBOARDING (16 STEP) ==================== -->
+  <div id="onboarding-view" class="hidden fixed inset-0 z-50 bg-obsidian overflow-y-auto px-5 py-8 flex flex-col justify-between">
+    <div class="max-w-xl mx-auto w-full">
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-serif italic text-xl gold-gradient-text tracking-wider">CORA // Become Her</span>
+        <span id="step-counter" class="text-xs uppercase tracking-widest text-zinc-400">Step 1 / 16</span>
+      </div>
+      
+      <!-- Barra di progresso -->
+      <div class="w-full h-1 bg-zinc-800 rounded-full overflow-hidden mb-8">
+        <div id="onboarding-progress" class="h-full bg-gradient-to-r from-gold-light to-gold transition-all duration-300" style="width: 6.25%"></div>
+      </div>
+
+      <!-- Contenuto domanda -->
+      <div id="question-container" class="space-y-6"></div>
+    </div>
+
+    <div class="max-w-xl mx-auto w-full pt-8 flex items-center justify-between gap-4">
+      <button id="prev-btn" onclick="prevStep()" class="px-5 py-3 rounded-xl border border-zinc-800 text-zinc-400 text-sm hover:text-white transition hidden">
+        Indietro
+      </button>
+      <button id="next-btn" onclick="nextStep()" class="ml-auto px-8 py-3.5 rounded-xl gold-btn text-sm tracking-wide shadow-lg">
+        Continua
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app-view" class="hidden flex-1 flex flex-col max-w-4xl mx-auto w-full pb-24">
+    
+    <!-- Header Superiore -->
+    <header class="px-5 pt-5 pb-4 flex items-center justify-between border-b border-gold/10 sticky top-0 bg-obsidian/90 backdrop-blur-md z-30">
+      <div>
+        <p id="header-era" class="text-[11px] uppercase tracking-[0.2em] text-gold">Giorno 1 di 90 • Settimana 1</p>
+        <h1 id="header-greeting" class="font-serif text-2xl sm:text-3xl font-semibold text-white">Bentornata</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <span id="user-level-badge" class="text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30 font-medium">Lv.1 Awakening</span>
+          <div class="w-24 h-1.5 bg-zinc-800 rounded-full mt-1.5 overflow-hidden">
+            <div id="xp-bar" class="h-full bg-gold transition-all duration-500" style="width: 15%"></div>
+          </div>
+        </div>
+        <button onclick="openBreathingModal()" title="Respirazione & Reset" class="p-2.5 rounded-full glass-card text-gold hover:bg-gold/10">
+          <i data-lucide="wind" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenuto Pagine -->
+    <main id="main-content" class="flex-1 px-5 pt-5 space-y-6"></main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-velvet/95 backdrop-blur-xl border-t border-gold/15 z-40 pb-safe">
+      <div class="max-w-4xl mx-auto flex justify-around items-center py-2.5 px-2">
+        <button onclick="switchTab('today')" data-tab="today" class="nav-btn flex flex-col items-center gap-1 text-gold">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+          <span class="text-[10px] tracking-wide">Oggi</span>
+        </button>
+        <button onclick="switchTab('study')" data-tab="study" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          <span class="text-[10px] tracking-wide">Studio</span>
+        </button>
+        <button onclick="switchTab('beauty')" data-tab="beauty" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
+          <i data-lucide="crown" class="w-5 h-5"></i>
+          <span class="text-[10px] tracking-wide">Glow & Body</span>
+        </button>
+        <button onclick="switchTab('calendar')" data-tab="calendar" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+          <span class="text-[10px] tracking-wide">Agenda</span>
+        </button>
+        <button onclick="switchTab('life')" data-tab="life" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
+          <i data-lucide="compass" class="w-5 h-5"></i>
+          <span class="text-[10px] tracking-wide">Guide & Vita</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Modal Respirazione / Meditazione -->
+  <div id="breathing-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-6">
+    <div class="glass-card rounded-3xl p-8 max-w-sm w-full text-center space-y-6 relative">
+      <button onclick="closeBreathingModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <p class="text-xs uppercase tracking-[0.2em] text-gold">Reset Nervoso & Centratura</p>
+      <h3 class="font-serif text-2xl text-white">Respira come Lei</h3>
+      <div class="py-6 flex justify-center">
+        <div class="w-32 h-32 rounded-full bg-gold/20 border border-gold flex items-center justify-center breath-circle">
+          <span id="breath-instruction" class="text-xs uppercase tracking-widest text-gold-light font-medium">Inspira 4s</span>
+        </div>
+      </div>
+      <p class="text-xs text-zinc-400 leading-relaxed">Rallenta il battito, lascia andare lo schermo e riconnettiti con la tua energia femminile calma e magnetica.</p>
+      <button onclick="addXP(15); closeBreathingModal();" class="w-full py-3 rounded-xl gold-btn text-xs uppercase tracking-wider">Ho completato il reset (+15 XP)</button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== DATI & QUESTIONARIO 16 STEP ====================
+    const QUESTIONS = [
+      { id: 'name', category: 'Identità', title: 'Come ti chiami?', subtitle: 'Il tuo percorso personalizzato inizia dal tuo nome.', type: 'text', placeholder: 'Es. Sofia, Chiara, Elena...' },
+      { id: 'role', category: 'Vita & Percorso', title: 'Cosa fai attualmente nella vita?', subtitle: 'Adatteremo il carico giornaliero e gli obiettivi.', type: 'select', options: ['Studentessa Universitaria', 'Studentessa Liceo / Scuola Superiore', 'Lavoratrice & Studentessa', 'Professionista / Lavoratrice', 'Anno di transizione / Focus su me stessa'] },
+      { id: 'studyField', category: 'Studio & Carriera', title: 'Cosa studi o qual è il tuo ambito principale?', subtitle: 'Serve per calibrare le sessioni di concentrazione e ripasso.', type: 'text', placeholder: 'Es. Medicina, Economia, Liceo Scientifico, Marketing...' },
+      { id: 'studyMethod', category: 'Metodo di Studio', title: 'Qual è il tuo metodo di studio ideale (o dove fai più fatica)?', subtitle: 'Il coach ti suggerirà blocchi e tecniche su misura.', type: 'select', options: ['Pomodoro (25m studio / 5m pausa)', 'Deep Work (50m studio / 10m pausa)', 'Mappe concettuali & Schemi visivi', 'Ripetizione attiva & Flashcard', 'Faccio fatica a iniziare: ho bisogno di struttura'] },
+      { id: 'studyHours', category: 'Impegno Giornaliero', title: 'Quante ore al giorno vuoi dedicare allo studio/lavoro profondo?', subtitle: 'Sii realistica: la costanza batte l’intensità.', type: 'select', options: ['1 - 2 ore al giorno', '3 - 4 ore al giorno', '5 - 6 ore al giorno', 'Oltre 6 ore (Sessione intensa)'] },
+      { id: 'mindsetBlock', category: 'Psicologia & Mindset', title: 'Qual è il tuo principale blocco mentale oggi?', subtitle: 'Identificarlo ci permette di sbloccare le guide giuste.', type: 'select', options: ['Procrastinazione e perfezionismo', 'Ansia da prestazione e overthinking', 'Mancanza di costanza nelle routine', 'Confronto continuo sui social', 'Stanchezza mentale e poca energia'] },
+      { id: 'futureEnergy', category: 'Identità Futura', title: 'Che energia vuoi emanare tra 90 giorni?', subtitle: 'Scegli l’archetipo guida della tua trasformazione.', type: 'select', options: ['Dark Feminine: magnetica, selettiva, sicura', 'Old Money: elegante, disciplinata, colta', 'Clean Girl: luminosa, organizzata, equilibrata', 'Academic Weapon: brillante, ambiziosa, inarrestabile'] },
+      { id: 'aestheticStyle', category: 'Estetica & Stile', title: 'Quale stile estetico desideri curare?', subtitle: 'Influenzerà consigli di stile, skincare e rituali.', type: 'select', options: ['Minimal Chic & Neutri', 'Dark Luxury & Sofisticato', 'Soft & Romantico', 'Sporty Luxury / Pilates Princess'] },
+      { id: 'hairType', category: 'Haircare & Prodotti', title: 'Che tipologia di capelli hai?', subtitle: 'CORA selezionerà i prodotti e i trattamenti settimanali adatti a te.', type: 'select', options: ['Lisci e fini (tendono a sporcarsi)', 'Mossi / Ondulati (tendenti al crespo)', 'Ricci / Afro (bisogno di idratazione intensa)', 'Trattati / Decolorati / Secchi', 'Spessi e naturali'] },
+      { id: 'skinType', category: 'Skincare & Prodotti', title: 'Qual è la tua tipologia di pelle?', subtitle: 'Per costruire la tua routine mattina e sera ideale.', type: 'select', options: ['Secca o disidratata', 'Mista (zona T lucida)', 'Grassa o a tendenza acneica', 'Sensibile / reattiva', 'Normale ma spenta'] },
+      { id: 'beautyAppointments', category: 'Appuntamenti Estetici', title: 'Quali appuntamenti estetici vuoi pianificare in automatico?', subtitle: 'Potrai sempre spostarli se li prenoti in un giorno diverso.', type: 'multiselect', options: ['Unghie / Manicure (ogni 3 sett.)', 'Parrucchiere / Piega o Taglio (ogni 6 sett.)', 'Epilazione / Laser (ogni 4 sett.)', 'Pulizia viso / Trattamento (ogni 4 sett.)', 'Maschera capelli & Hair Oiling (ogni domenica)'] },
+      { id: 'bodyGoal', category: 'Corpo & Movimento', title: 'Qual è il tuo obiettivo fisico e di movimento?', subtitle: 'Creeremo una routine sostenibile per il tuo corpo.', type: 'select', options: ['Tonificazione & Pilates / Barre', 'Forza & Palestra / Pesi', 'Postura, flessibilità & camminata veloce', 'Energia, salute e riduzione dello stress'] },
+      { id: 'socialHabit', category: 'Digital Detox', title: 'Come vivi oggi i social media e le serie TV?', subtitle: 'CORA ti suggerirà limiti gentili senza bloccarti.', type: 'select', options: ['Passo troppo tempo su TikTok/Instagram', 'Guardo serie TV fino a tardi perdendo sonno', 'Li uso il giusto ma voglio più tempo per me', 'Voglio trasformare lo svago in un premio serale'] },
+      { id: 'relationships', category: 'Relazioni & Legami', title: 'Su cosa vuoi migliorare nelle tue relazioni?', subtitle: 'Inseriremo promemoria gentili per coltivare i legami veri.', type: 'select', options: ['Essere più presente per le amiche care', 'Imparare a mettere confini sani e dire di no', 'Migliorare la comunicazione in amore/famiglia', 'Selezionare frequentazioni più allineate a me'] },
+      { id: 'financeGoal', category: 'Finanze & Abbondanza', title: 'Qual è il tuo obiettivo finanziario principale?', subtitle: 'Per gestire budget e risparmi con mentalità abbondante.', type: 'select', options: ['Creare un fondo di emergenza / risparmio', 'Ridurre gli acquisti impulsivi online', 'Risparmiare per un viaggio o un investimento su di me', 'Tenere traccia precisa di entrate e uscite'] },
+      { id: 'manifesto', category: 'La Tua Promessa', title: 'Scrivi la tua frase manifesto per questi 90 giorni:', subtitle: 'La leggerai ogni mattina nel tuo check-in.', type: 'text', placeholder: 'Es. Divento la donna che ho sempre ammirato, un giorno alla volta.' }
+    ];
+
+    let state = JSON.parse(localStorage.getItem('cora_become_her_v1')) || {
+      onboarded: false,
+      currentStep: 0,
+      answers: { beautyAppointments: ['Maschera capelli & Hair Oiling (ogni domenica)'] },
+      xp: 20,
+      day: 1,
+      checkinMorning: { done: false, mood: '', priority1: '', priority2: '', priority3: '' },
+      checkinEvening: { done: false, win: '', gratitude: '' },
+      routines: [],
+      habits: [],
+      exams: [],
+      appointments: [],
+      socialMinutes: 45,
+      tvEpisodes: 0,
+      savings: { current: 250, goal: 1000 },
+      completedGuides: []
+    };
+
+    function saveState() {
+      localStorage.setItem('cora_become_her_v1', JSON.stringify(state));
+    }
+
+    // ==================== LOGICA ONBOARDING ====================
+    function renderOnboarding() {
+      document.getElementById('onboarding-view').classList.remove('hidden');
+      document.getElementById('app-view').classList.add('hidden');
+      
+      const q = QUESTIONS[state.currentStep];
+      document.getElementById('step-counter').innerText = `Step ${state.currentStep + 1} / ${QUESTIONS.length}`;
+      document.getElementById('onboarding-progress').style.width = `${((state.currentStep + 1) / QUESTIONS.length) * 100}%`;
+      
+      const prevBtn = document.getElementById('prev-btn');
+      state.currentStep > 0 ? prevBtn.classList.remove('hidden') : prevBtn.classList.add('hidden');
+      document.getElementById('next-btn').innerText = state.currentStep === QUESTIONS.length - 1 ? 'Genera il Mio Piano' : 'Continua';
+
+      const container = document.getElementById('question-container');
+      const currentVal = state.answers[q.id] || '';
+
+      let inputHTML = '';
+      if (q.type === 'text') {
+        inputHTML = `<input id="q-input" type="text" value="${currentVal}" placeholder="${q.placeholder}" class="w-full p-4 rounded-2xl bg-velvet border border-gold/30 text-white placeholder-zinc-500 focus:outline-none focus:border-gold text-base" />`;
+      } else if (q.type === 'select') {
+        inputHTML = `<div class="space-y-2.5">` + q.options.map(opt => {
+          const active = currentVal === opt;
+          return `<button type="button" onclick="selectOption('${q.id}', '${opt.replace(/'/g, "\\'")}')" class="w-full text-left p-4 rounded-2xl glass-card transition flex items-center justify-between ${active ? 'glass-card-active text-gold-light' : 'text-zinc-300'}">
+            <span class="text-sm">${opt}</span>
+            <span class="w-4 h-4 rounded-full border ${active ? 'border-gold bg-gold' : 'border-zinc-600'}"></span>
+          </button>`;
+        }).join('') + `</div>`;
+      } else if (q.type === 'multiselect') {
+        const arr = Array.isArray(currentVal) ? currentVal : [];
+        inputHTML = `<div class="space-y-2.5">` + q.options.map(opt => {
+          const active = arr.includes(opt);
+          return `<button type="button" onclick="toggleMultiOption('${q.id}', '${opt.replace(/'/g, "\\'")}')" class="w-full text-left p-4 rounded-2xl glass-card transition flex items-center justify-between ${active ? 'glass-card-active text-gold-light' : 'text-zinc-300'}">
+            <span class="text-sm">${opt}</span>
+            <span class="w-4 h-4 rounded border flex items-center justify-center ${active ? 'border-gold bg-gold text-obsidian' : 'border-zinc-600'}">${active ? '✓' : ''}</span>
+          </button>`;
+        }).join('') + `</div>`;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-2">
+          <span class="text-xs uppercase tracking-[0.2em] text-gold">${q.category}</span>
+          <h2 class="font-serif text-3xl text-white leading-tight">${q.title}</h2>
+          <p class="text-sm text-zinc-400">${q.subtitle}</p>
+        </div>
+        <div class="pt-2">${inputHTML}</div>
+      `;
+    }
+
+    function selectOption(id, val) {
+      state.answers[id] = val;
+      renderOnboarding();
+    }
+
+    function toggleMultiOption(id, val) {
+      if (!Array.isArray(state.answers[id])) state.answers[id] = [];
+      const idx = state.answers[id].indexOf(val);
+      idx > -1 ? state.answers[id].splice(idx, 1) : state.answers[id].push(val);
+      renderOnboarding();
+    }
+
+    function prevStep() {
+      if (state.currentStep > 0) {
+        state.currentStep--;
+        renderOnboarding();
+      }
+    }
+
+    function nextStep() {
+      const q = QUESTIONS[state.currentStep];
+      if (q.type === 'text') {
+        const val = document.getElementById('q-input').value.trim();
+        state.answers[q.id] = val || (q.id === 'name' ? 'Regine' : 'Divento la versione migliore di me stessa');
+      }
+      if (state.currentStep < QUESTIONS.length - 1) {
+        state.currentStep++;
+        renderOnboarding();
+      } else {
+        generatePersonalizedPlan();
+      }
+    }
+
+    // ==================== GENERAZIONE PIANO SU MISURA ====================
+    function generatePersonalizedPlan() {
+      const a = state.answers;
+      
+      // Routine generate in base alle risposte
+      state.routines = [
+        { id: 1, block: 'Mattina', time: '07:30', title: 'Acqua tiepida + Skincare ' + (a.skinType ? a.skinType.split(' ')[0] : 'luminosa'), done: false },
+        { id: 2, block: 'Mattina', time: '08:00', title: 'Check-in mattutino & lettura manifesto', done: false },
+        { id: 3, block: 'Pomeriggio', time: 'Flessibile', title: `Blocco studio (${a.studyMethod ? a.studyMethod.split('(')[0].trim() : 'Deep Work'}) - ${a.studyField || 'Obiettivi'}`, done: false },
+        { id: 4, block: 'Pomeriggio', time: '18:00', title: `Movimento: ${a.bodyGoal ? a.bodyGoal.split('&')[0].trim() : 'Pilates / Camminata'} (35 min)`, done: false },
+        { id: 5, block: 'Sera', time: '21:30', title: 'Digital Detox & Skincare serale + Bilancio giornata', done: false }
+      ];
+
+      state.habits = [
+        { id: 1, title: '2L di acqua & postura elegante', streak: 1, done: false },
+        { id: 2, title: `Studio mirato (${a.studyHours || '3 ore'})`, streak: 1, done: false },
+        { id: 3, title: 'Zero scrolling appena sveglia (30 min)', streak: 1, done: false },
+        { id: 4, title: 'Un gesto gentile per una relazione vera', streak: 1, done: false }
+      ];
+
+      // Appuntamenti estetici ricorrenti
+      const today = new Date();
+      state.appointments = (a.beautyAppointments || []).map((item, idx) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() + (idx + 1) * 5);
+        return {
+          id: Date.now() + idx,
+          title: item.split('(')[0].trim(),
+          frequency: item.includes('(') ? item.split('(')[1].replace(')', '') : 'Ricorrente',
+          date: d.toISOString().split('T')[0],
+          type: 'Estetica'
+        };
+      });
+
+      // Esame di esempio modificabile
+      const examDate = new Date(today);
+      examDate.setDate(today.getDate() + 18);
+      state.exams = [
+        { id: 1, subject: a.studyField || 'Esame Principale', date: examDate.toISOString().split('T')[0], topics: 'Capitoli 1-6 + Simulazione' }
+      ];
+
+      state.onboarded = true;
+      saveState();
+      initApp();
+    }
+
+    // ==================== FUNZIONI CORE APP ====================
+    function initApp() {
+      document.getElementById('onboarding-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      updateHeader();
+      switchTab('today');
+    }
+
+    function updateHeader() {
+      const name = state.answers.name || 'Regina';
+      const week = Math.ceil(state.day / 7);
+      document.getElementById('header-era').innerText = `Giorno ${state.day} di 90 • Settimana ${week}`;
+      document.getElementById('header-greeting').innerText = `Ciao, ${name}`;
+
+      const level = Math.floor(state.xp / 100) + 1;
+      const titles = ['Awakening', 'Disciplined', 'Magnetic', 'Radiant', 'Iconic Her'];
+      const title = titles[Math.min(level - 1, titles.length - 1)];
+      document.getElementById('user-level-badge').innerText = `Lv.${level} ${title}`;
+      document.getElementById('xp-bar').style.width = `${state.xp % 100}%`;
+    }
+
+    function addXP(amount) {
+      state.xp += amount;
+      saveState();
+      updateHeader();
+    }
+
+    let currentTab = 'today';
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tab) {
+          btn.classList.remove('text-zinc-500');
+          btn.classList.add('text-gold');
+        } else {
+          btn.classList.add('text-zinc-500');
+          btn.classList.remove('text-gold');
+        }
+      });
+
+      const main = document.getElementById('main-content');
+      if (tab === 'today') renderToday(main);
+      if (tab === 'study') renderStudy(main);
+      if (tab === 'beauty') renderBeauty(main);
+      if (tab === 'calendar') renderCalendar(main);
+      if (tab === 'life') renderLife(main);
+      lucide.createIcons();
+    }
+
+    // ==================== TAB 1: OGGI (CHECK-IN, ROUTINE, ABITUDINI) ====================
+    function renderToday(container) {
+      const a = state.answers;
+      container.innerHTML = `
+        <!-- Manifesto Card -->
+        <div class="glass-card rounded-3xl p-5 border-gold/30">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] uppercase tracking-[0.2em] text-gold">La Tua Identità • ${a.futureEnergy ? a.futureEnergy.split(':')[0] : 'Become Her'}</span>
+            <button onclick="resetOnboarding()" class="text-[11px] text-zinc-400 underline">Rifai Test</button>
+          </div>
+          <p class="font-serif italic text-xl text-gold-light">“${a.manifesto || 'Divento la donna che ho sempre ammirato.'}”</p>
+        </div>
+
+        <!-- Check-in Mattutino & Serale -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-card rounded-3xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-serif text-xl text-white flex items-center gap-2"><i data-lucide="sun" class="w-4 h-4 text-gold"></i> Check-in Mattutino</h3>
+              <span class="text-xs text-gold">${state.checkinMorning.done ? 'Completato ✓' : '+25 XP'}</span>
+            </div>
+            <input type="text" placeholder="Priorità #1 di oggi..." value="${state.checkinMorning.priority1}" onchange="state.checkinMorning.priority1=this.value; saveState();" class="w-full p-2.5 rounded-xl bg-obsidian/80 border border-zinc-800 text-xs text-white" />
+            <input type="text" placeholder="Come vuoi sentirti oggi?" value="${state.checkinMorning.mood}" onchange="state.checkinMorning.mood=this.value; saveState();" class="w-full p-2.5 rounded-xl bg-obsidian/80 border border-zinc-800 text-xs text-white" />
+            <button onclick="if(!state.checkinMorning.done){state.checkinMorning.done=true; addXP(25); switchTab('today');}" class="w-full py-2.5 rounded-xl ${state.checkinMorning.done ? 'bg-zinc-800 text-zinc-400' : 'gold-btn'} text-xs">
+              ${state.checkinMorning.done ? 'Intenzione Fissata' : 'Sigilla Intenzione Mattutina'}
+            </button>
+          </div>
+
+          <div class="glass-card rounded-3xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-serif text-xl text-white flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-gold"></i> Bilancio Serale</h3>
+              <span class="text-xs text-gold">${state.checkinEvening.done ? 'Completato ✓' : '+25 XP'}</span>
+            </div>
+            <input type="text" placeholder="Cosa hai fatto oggi per la tua Future Self?" value="${state.checkinEvening.win}" onchange="state.checkinEvening.win=this.value; saveState();" class="w-full p-2.5 rounded-xl bg-obsidian/80 border border-zinc-800 text-xs text-white" />
+            <input type="text" placeholder="Una cosa per cui sei grata stasera..." value="${state.checkinEvening.gratitude}" onchange="state.checkinEvening.gratitude=this.value; saveState();" class="w-full p-2.5 rounded-xl bg-obsidian/80 border border-zinc-800 text-xs text-white" />
+            <button onclick="if(!state.checkinEvening.done){state.checkinEvening.done=true; addXP(25); switchTab('today');}" class="w-full py-2.5 rounded-xl ${state.checkinEvening.done ? 'bg-zinc-800 text-zinc-400' : 'gold-btn'} text-xs">
+              ${state.checkinEvening.done ? 'Giornata Chiusa' : 'Chiudi Giornata & Avanza'}
+            </button>
+          </div>
+        </div>
+
+        <!-- Routine Guidata -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-serif text-2xl text-white">Il Tuo Flusso Giornaliero</h3>
+              <p class="text-xs text-zinc-400">Blocchi flessibili e orari calibrati sul tuo profilo</p>
+            </div>
+            <button onclick="addNewRoutine()" class="px-3 py-1.5 rounded-xl border border-gold/40 text-gold text-xs">+ Aggiungi</button>
+          </div>
+          <div class="space-y-2.5">
+            ${state.routines.map(r => `
+              <div onclick="toggleRoutine(${r.id})" class="p-3.5 rounded-2xl bg-obsidian/70 border ${r.done ? 'border-gold/40 opacity-60' : 'border-zinc-800'} flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <div class="w-5 h-5 rounded-full border ${r.done ? 'bg-gold border-gold text-obsidian' : 'border-gold/50'} flex items-center justify-center text-xs">${r.done ? '✓' : ''}</div>
+                  <div>
+                    <p class="text-sm ${r.done ? 'line-through text-zinc-400' : 'text-white'}">${r.title}</p>
+                    <span class="text-[11px] text-gold">${r.block} • ${r.time}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Abitudini -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <h3 class="font-serif text-2xl text-white">Abitudini Non-Negoziabili</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${state.habits.map(h => `
+              <div onclick="toggleHabit(${h.id})" class="p-3.5 rounded-2xl bg-obsidian/70 border ${h.done ? 'border-gold/50' : 'border-zinc-800'} flex items-center justify-between cursor-pointer">
+                <span class="text-xs ${h.done ? 'text-gold-light line-through' : 'text-zinc-200'}">${h.title}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-gold/10 text-gold">🔥 ${h.streak}g</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleRoutine(id) {
+      const r = state.routines.find(x => x.id === id);
+      if (r) {
+        r.done = !r.done;
+        if (r.done) addXP(15);
+        saveState();
+        switchTab('today');
+      }
+    }
+
+    function toggleHabit(id) {
+      const h = state.habits.find(x => x.id === id);
+      if (h) {
+        h.done = !h.done;
+        if (h.done) { h.streak++; addXP(10); }
+        saveState();
+        switchTab('today');
+      }
+    }
+
+    function addNewRoutine() {
+      const title = prompt('Nuovo step nella tua routine:');
+      if (!title) return;
+      const time = prompt('Orario o blocco (es. 16:30 oppure Flessibile):', 'Flessibile') || 'Flessibile';
+      state.routines.push({ id: Date.now(), block: 'Personalizzato', time, title, done: false });
+      saveState();
+      switchTab('today');
+    }
+
+    // ==================== TAB 2: STUDIO & ESAMI (CON COUNTDOWN & PIANO) ====================
+    function renderStudy(container) {
+      const a = state.answers;
+      container.innerHTML = `
+        <div class="glass-card rounded-3xl p-5 space-y-3">
+          <span class="text-[11px] uppercase tracking-[0.2em] text-gold">Coach Accademico • ${a.studyField || 'Studio'}</span>
+          <h2 class="font-serif text-2xl text-white">Strategia Consigliata per Te</h2>
+          <p class="text-xs text-zinc-300 leading-relaxed">
+            In base al tuo metodo (<strong class="text-gold-light">${a.studyMethod || 'Deep Work'}</strong>) e al tuo blocco (<strong class="text-gold-light">${a.mindsetBlock || 'Procrastinazione'}</strong>), dividi la sessione di oggi (${a.studyHours || '3 ore'}) in blocchi da 45 minuti con 10 minuti di pausa senza smartphone.
+          </p>
+        </div>
+
+        <!-- Esami & Verifiche con Countdown e Distribuzione Ripassi -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-serif text-2xl text-white">Esami & Verifiche</h3>
+            <button onclick="addExam()" class="px-3.5 py-2 rounded-xl gold-btn text-xs">+ Nuova Data</button>
+          </div>
+          
+          <div class="space-y-4">
+            ${state.exams.map(ex => {
+              const daysLeft = Math.max(0, Math.ceil((new Date(ex.date) - new Date()) / (1000 * 60 * 60 * 24)));
+              const studyDays = Math.max(1, Math.floor(daysLeft * 0.75));
+              const reviewDays = Math.max(1, daysLeft - studyDays);
+              return `
+                <div class="p-4 rounded-2xl bg-obsidian/80 border border-gold/25 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="font-serif text-xl text-white">${ex.subject}</h4>
+                      <p class="text-xs text-zinc-400">Data: ${ex.date} • ${ex.topics}</p>
+                    </div>
+                    <div class="text-center px-3 py-1.5 rounded-xl bg-gold/15 border border-gold/30">
+                      <span class="block font-serif text-xl text-gold font-bold">-${daysLeft}</span>
+                      <span class="text-[10px] uppercase text-gold-light">Giorni</span>
+                    </div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-velvet border border-zinc-800 text-xs text-zinc-300 space-y-1">
+                    <p class="text-gold font-medium">Piano Automatico Distribuito:</p>
+                    <p>• <strong>Prossimi ${studyDays} giorni:</strong> Studio attivo & schemi (${ex.topics})</p>
+                    <p>• <strong>Ultimi ${reviewDays} giorni prima dell'esame:</strong> Ripasso generale e simulazione orale/scritta</p>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function addExam() {
+      const subject = prompt('Nome materia / esame / verifica:');
+      if (!subject) return;
+      const date = prompt('Data dell’esame (AAAA-MM-GG, es. 2026-12-10):', '2026-12-10');
+      if (!date) return;
+      const topics = prompt('Argomenti o capitoli da preparare:', 'Programma completo');
+      state.exams.push({ id: Date.now(), subject, date, topics });
+      saveState();
+      switchTab('study');
+    }
+
+    // ==================== TAB 3: GLOW & BODY (PRODOTTI SU MISURA) ====================
+    function renderBeauty(container) {
+      const a = state.answers;
+      
+      // Logica consigli prodotti su misura dal questionario
+      let hairAdvice = 'Shampoo delicato senza solfati, maschera nutriente alla cheratina 1 volta a settimana e olio leggero sulle punte.';
+      if ((a.hairType || '').includes('Ricci')) hairAdvice = 'Co-wash idratante, leave-in ricco al burro di karité, gel definizione e asciugatura con diffusore.';
+      if ((a.hairType || '').includes('Lisci')) hairAdvice = 'Shampoo purificante delicato, balsamo volumizzante solo sulle lunghezze e termoprotettore leggero.';
+      if ((a.hairType || '').includes('Trattati')) hairAdvice = 'Trattamento ristrutturante ai legami (bond repair), maschera acidificante e olio pre-shampoo.';
+
+      let skinAdvice = 'Detergente delicato, siero alla Vitamina C al mattino + SPF 50, crema barriera alla ceramide la sera.';
+      if ((a.skinType || '').includes('Grassa')) skinAdvice = 'Detergente in gel con acido salicilico, niacinamide 10%, idratante oil-free e SPF 50 opaco.';
+      if ((a.skinType || '').includes('Secca')) skinAdvice = 'Latte detergente, acido ialuronico su pelle umida, crema ricca ai peptidi e SPF 50 idratante.';
+
+      container.innerHTML = `
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <span class="text-[11px] uppercase tracking-[0.2em] text-gold">Protocollo Estetico Personalizzato</span>
+          <h2 class="font-serif text-2xl text-white">Prodotti & Rituali per il Tuo Profilo</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-obsidian/80 border border-gold/20 space-y-2">
+              <p class="text-xs uppercase tracking-wider text-gold">Haircare • ${a.hairType || 'Su misura'}</p>
+              <p class="text-xs text-zinc-300 leading-relaxed">${hairAdvice}</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-obsidian/80 border border-gold/20 space-y-2">
+              <p class="text-xs uppercase tracking-wider text-gold">Skincare • ${a.skinType || 'Su misura'}</p>
+              <p class="text-xs text-zinc-300 leading-relaxed">${skinAdvice}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5 space-y-3">
+          <h3 class="font-serif text-xl text-white">Movimento & Corpo • ${a.bodyGoal || 'Armonia'}</h3>
+          <p class="text-xs text-zinc-400">Sessione consigliata oggi: 30 minuti di ${a.bodyGoal || 'Pilates & postura'} + 8.000 passi per drenare e ossigenare la mente.</p>
+          <button onclick="addXP(20); alert('Allenamento registrato! +20 XP');" class="px-4 py-2.5 rounded-xl gold-btn text-xs">Segna Allenamento Completato (+20 XP)</button>
+        </div>
+      `;
+    }
+
+    // ==================== TAB 4: AGENDA & APPUNTAMENTI MODIFICABILI ====================
+    function renderCalendar(container) {
+      const allEvents = [
+        ...state.appointments.map(ap => ({ ...ap, kind: 'appointment' })),
+        ...state.exams.map(ex => ({ id: ex.id, title: 'Esame: ' + ex.subject, date: ex.date, frequency: ex.topics, kind: 'exam' }))
+      ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      container.innerHTML = `
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="font-serif text-2xl text-white">Calendario & Appuntamenti</h2>
+              <p class="text-xs text-zinc-400">Tocca una data per spostarla in base a quando hai prenotato</p>
+            </div>
+            <button onclick="addCustomAppointment()" class="px-3.5 py-2 rounded-xl gold-btn text-xs">+ Evento</button>
+          </div>
+
+          <div class="space-y-3">
+            ${allEvents.map(ev => {
+              const daysLeft = Math.ceil((new Date(ev.date) - new Date()) / (1000 * 60 * 60 * 24));
+              return `
+                <div class="p-4 rounded-2xl bg-obsidian/80 border ${ev.kind === 'exam' ? 'border-gold/50' : 'border-zinc-800'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-gold/15 text-gold">${ev.kind === 'exam' ? 'Studio / Esame' : 'Cura Estetica'}</span>
+                    <h4 class="font-serif text-lg text-white mt-1">${ev.title}</h4>
+                    <p class="text-xs text-zinc-400">${ev.frequency} • ${daysLeft >= 0 ? `Tra ${daysLeft} giorni` : 'Passato'}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <label class="text-[11px] text-zinc-400">Data prenotata:</label>
+                    <input type="date" value="${ev.date}" onchange="rescheduleEvent('${ev.kind}', ${ev.id}, this.value)" class="p-2 rounded-xl bg-velvet border border-gold/30 text-xs text-gold-light" />
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function rescheduleEvent(kind, id, newDate) {
+      if (kind === 'appointment') {
+        const item = state.appointments.find(x => x.id === id);
+        if (item) item.date = newDate;
+      } else {
+        const item = state.exams.find(x => x.id === id);
+        if (item) item.date = newDate;
+      }
+      saveState();
+      switchTab('calendar');
+    }
+
+    function addCustomAppointment() {
+      const title = prompt('Titolo appuntamento (es. Parrucchiere, Unghie, Visita):');
+      if (!title) return;
+      const date = prompt('Data (AAAA-MM-GG):', new Date().toISOString().split('T')[0]);
+      if (!date) return;
+      state.appointments.push({ id: Date.now(), title, date, frequency: 'Appuntamento singolo', type: 'Estetica' });
+      saveState();
+      switchTab('calendar');
+    }
+
+    // ==================== TAB 5: GUIDE SBLOCCABILI, SOCIAL, RELAZIONI & RISPARMIO ====================
+    function renderLife(container) {
+      const week = Math.ceil(state.day / 7);
+      const a = state.answers;
+      
+      const guides = [
+        { week: 1, title: `Superare "${a.mindsetBlock || 'il blocco mentale'}" in 7 giorni`, desc: 'Protocollo pratico per sbloccare la mente e creare slancio immediato.' },
+        { week: 2, title: `Metodo ${a.studyMethod || 'Deep Work'} applicato a ${a.studyField || 'lo studio'}`, desc: 'Come raddoppiare la ritenzione mnemonica senza studiare di notte.' },
+        { week: 3, title: `Abitare la tua energia ${a.futureEnergy ? a.futureEnergy.split(':')[0] : 'Become Her'}`, desc: 'Linguaggio del corpo, confini selettivi e magnetismo silenzioso.' }
+      ];
+
+      container.innerHTML = `
+        <!-- Libreria Guide Sbloccabili a Settimane -->
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase tracking-[0.2em] text-gold">Libreria Su Misura</span>
+              <h2 class="font-serif text-2xl text-white">Le Tue Guide Settimanali</h2>
+            </div>
+            <button onclick="state.day += 7; saveState(); updateHeader(); switchTab('life');" class="text-[11px] px-2.5 py-1 rounded-lg border border-gold/30 text-gold">Simula +1 Settimana</button>
+          </div>
+          <div class="space-y-3">
+            ${guides.map(g => {
+              const unlocked = week >= g.week;
+              return `
+                <div class="p-4 rounded-2xl bg-obsidian/80 border ${unlocked ? 'border-gold/30' : 'border-zinc-800 opacity-50'} flex items-center justify-between gap-4">
+                  <div>
+                    <span class="text-[10px] uppercase tracking-wider text-gold">Settimana ${g.week} ${unlocked ? '• Sbloccata' : '• Bloccata'}</span>
+                    <h4 class="font-serif text-lg text-white">${g.title}</h4>
+                    <p class="text-xs text-zinc-400 mt-1">${unlocked ? g.desc : 'Continua il tuo percorso giornaliero per sbloccare questa guida.'}</p>
+                  </div>
+                  ${unlocked ? `<button onclick="addXP(20); alert('Guida letta e assimilata! +20 XP');" class="px-3 py-2 rounded-xl gold-btn text-xs shrink-0">Leggi</button>` : `<i data-lucide="lock" class="w-5 h-5 text-zinc-500 shrink-0"></i>`}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Suggerimenti Gentili: Social, Serie TV & Relazioni -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-card rounded-3xl p-5 space-y-3">
+            <h3 class="font-serif text-xl text-white">Equilibrio Social & Serie TV</h3>
+            <p class="text-xs text-zinc-400">CORA ti suggerisce max <strong class="text-gold-light">60 min/giorno</strong> di social e <strong class="text-gold-light">1 episodio</strong> serale come premio.</p>
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span>Social oggi: <strong>${state.socialMinutes} min</strong></span>
+              <div class="flex gap-2">
+                <button onclick="state.socialMinutes += 15; saveState(); switchTab('life');" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-white">+15m</button>
+                <button onclick="openBreathingModal()" class="px-2.5 py-1 rounded-lg border border-gold/40 text-gold">Reset</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span>Episodi Serie TV: <strong>${state.tvEpisodes}</strong></span>
+              <button onclick="state.tvEpisodes++; saveState(); switchTab('life');" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-white">+1 Ep.</button>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-3xl p-5 space-y-3">
+            <h3 class="font-serif text-xl text-white">Relazioni & Risparmio</h3>
+            <div class="p-3 rounded-xl bg-obsidian/70 border border-gold/20 text-xs text-zinc-300">
+              <span class="text-gold block font-medium mb-0.5">Promemoria Legami (${a.relationships || 'Cura'}):</span>
+              Manda oggi un messaggio vocale o un pensiero sincero a una persona che ti eleva.
+            </div>
+            <div class="pt-1 space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <span>Fondo Risparmio: <strong class="text-gold">€${state.savings.current}</strong> / €${state.savings.goal}</span>
+                <button onclick="const add=Number(prompt('Quanto vuoi aggiungere al risparmio (€)?', '20')); if(add){state.savings.current+=add; addXP(15); saveState(); switchTab('life');}" class="text-gold underline">+ Versa</button>
+              </div>
+              <div class="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gold" style="width: ${Math.min(100, (state.savings.current / state.savings.goal) * 100)}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==================== UTILITÀ ====================
+    function openBreathingModal() {
+      document.getElementById('breathing-modal').classList.remove('hidden');
+      let phase = 0;
+      const texts = ['Inspira 4s', 'Trattieni 4s', 'Espira 6s'];
+      window.breathTimer = setInterval(() => {
+        phase = (phase + 1) % texts.length;
+        const el = document.getElementById('breath-instruction');
+        if (el) el.innerText = texts[phase];
+      }, 3500);
+    }
+
+    function closeBreathingModal() {
+      document.getElementById('breathing-modal').classList.add('hidden');
+      clearInterval(window.breathTimer);
+    }
+
+    function resetOnboarding() {
+      if (confirm('Vuoi rifare il questionario iniziale da 16 step per ricalibrare tutta l’app?')) {
+        state.onboarded = false;
+        state.currentStep = 0;
+        saveState();
+        renderOnboarding();
+      }
+    }
+
+    // Avvio iniziale
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      state.onboarded ? initApp() : renderOnboarding();
+    });
+  </script>
+</body>
+</html>
